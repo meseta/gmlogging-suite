@@ -1,7 +1,4 @@
 function Sentry(_dsn="") constructor {
-	static __GMSENTRY_VERSION = "2.0";
-	static __GMSENTRY_LOG_PREFIX = "gmsentry_";
-	
 	__enable_send = false;
 	try {
 		// parse DSN
@@ -67,8 +64,8 @@ function Sentry(_dsn="") constructor {
 	__user = undefined;
 	__options = {
 		breadcrumbs_max: 100,
-		backup_autoclean: true,
 		backup_before_send: true,
+		backup_autoclean: true,
 		backup_path: "",
 		show_popup: true,
 		ask_to_send: true,
@@ -81,14 +78,22 @@ function Sentry(_dsn="") constructor {
 	}
 	__requests = {};
 	__instance = noone;
+	static SENTRY_LOG_FILE_PREFIX = "sentry_";
+	
 	
 	
 	add_tag = function(_key, _value) {
 		// Add a custom tag to sentry
 		__tags[$ _key] = _value;
 	}
+	remove_tag = function(_key) {
+		// Remove a custom tag to sentry
+		if (variable_struct_exists(__tags, _key)) {
+			variable_struct_remove(__tags, _key);
+		}
+	}
 	
-	add_breadcrumb = function(_category, _level, _message, _type="default", _data=undefined) {
+	add_breadcrumb = function(_category, _message, _data=undefined, _level=LEVEL_DEBUG, _type="default") {
 		// Add a breadcrumb to sentry
 		var _struct = {
 			type: _type,
@@ -135,10 +140,15 @@ function Sentry(_dsn="") constructor {
 	}
 	
 	set_option = function(_option, _value) {
-		__options[$ _option] = _value;	
+		if (variable_struct_exists(__options, _option)) {
+			__options[$ _option] = _value;
+		}
+		else {
+			show_error("You tried to set sentry option " + string(_option) + " but this does not exist", true);
+		}
 	}
 	
-	send_request = function(_level, _message, _callback=undefined, _errorback=undefined, _logger="gmsentry", _extras=undefined, _raw_stacktrace=undefined) {
+	send_report = function(_level, _message, _callback=undefined, _errorback=undefined, _logger="gmsentry", _extras=undefined, _raw_stacktrace=undefined) {
 		// Send a request to sentry
 		if (is_undefined(_raw_stacktrace)) {
 			_raw_stacktrace = debug_get_callstack();
@@ -151,6 +161,59 @@ function Sentry(_dsn="") constructor {
 			__save_and_send(_payload, _callback, _errorback);
 		}
 	}
+	
+	list_all_backed_up_reports = function() {
+		// return a list of saved files
+		var _files = []
+		var _file = file_find_first(__options.backup_path + SENTRY_LOG_FILE_PREFIX + "*", 0);
+		while (_file != "") {
+			array_push(_files, _file);
+			_file = file_find_next();
+		}
+		file_find_close();
+		return _files;
+	}
+	
+	delete_all_backed_up_reports = function() {
+		// deletes all saved files
+		var _files = list_all_backed_up_reports();
+		var _len = array_length(_files);
+		for(var _i=0; _i<_len; _i++) {
+			var _file = _files[_i];
+			file_delete(_file);
+		}
+	}
+	
+	send_backed_up_report = function(_file, _callback=undefined, _errorback=undefined) {
+		// send a single backed up report
+		if (file_exists(_file)) {
+			var _uuid4 = string_copy(_file, string_length(_file)-31, 32);
+		
+			if (string_length(_uuid4) == 32) {
+				var _buff = buffer_load(_file);
+				if (__enable_send) {
+					var _async_id = __sentry_request(_buff);
+					__requests[$ string(_async_id)] = {
+						uuid: _uuid4,
+						callback: _callback,
+						errorback: _errorback,
+					};
+				}
+				buffer_delete(_buff);
+			}
+		}
+	}
+	
+	send_all_backed_up_reports = function(_callback=undefined, _errorback=undefined) {
+		// send all backed up reports
+		var _files = list_all_backed_up_reports();
+		var _len = array_length(_files);
+		for(var _i=0; _i<_len; _i++) {
+			var _file = _files[_i];
+			send_backed_up_report(_file, _callback, _errorback);
+		}
+	}
+	
 	
 	exception_handler = function(_err) {
 		// try to detect our own custom exceptions
@@ -239,7 +302,7 @@ function Sentry(_dsn="") constructor {
 		var _compress = __compress_payload(_payload);
 		
 		if (__options.backup_before_send) {
-			var _filename = __options.backup_path + __GMSENTRY_LOG_PREFIX + _payload.event_id;
+			var _filename = __options.backup_path + SENTRY_LOG_FILE_PREFIX + _payload.event_id;
 			buffer_save(_compress, _filename);
 		}
 		if (__enable_send) {
@@ -257,53 +320,6 @@ function Sentry(_dsn="") constructor {
 		buffer_delete(_compress);
 	}
 
-	saved_count = function() {
-		// Figures out whether there are saved logfiles available
-		var _count = 0;
-		var _file = file_find_first(__options.backup_path + __GMSENTRY_LOG_PREFIX + "*", 0);
-		while (_file != "") {
-			_count ++;
-			_file = file_find_next();
-		}
-		file_find_close();
-		return _count;
-	}
-	
-	saved_delete = function() {
-		// deletes all saved files
-		var _file = file_find_first(__options.backup_path + __GMSENTRY_LOG_PREFIX + "*", 0);
-		while (_file != "") {
-			file_delete(_file);
-			_file = file_find_next();
-		}
-		file_find_close();
-	}
-	
-	saved_send = function(_callback=undefined, _errorback=undefined) {
-		// send all saved requests
-			
-		var _file = file_find_first(__options.backup_path + __GMSENTRY_LOG_PREFIX + "*", 0);
-		while (_file != "") {
-			var _uuid4 = string_copy(_file, string_length(_file)-31, 32);
-		
-			if (string_length(_uuid4) == 32) {
-				var _buff = buffer_load(_file);
-				if (__enable_send) {
-					var _async_id = __sentry_request(_buff);
-					__requests[$ string(_async_id)] = {
-						uuid: _uuid4,
-						callback: _callback,
-						errorback: _errorback,
-					};
-				}
-				buffer_delete(_buff);
-			}
-			_file = file_find_next();
-		}
-	
-		file_find_close();
-	}
-	
 	__compress_payload = function(__payload) {
 		var _json = json_stringify(__payload);
 		var _buff = buffer_create(string_byte_length(_json), buffer_fixed, 1);
@@ -354,7 +370,7 @@ function Sentry(_dsn="") constructor {
 			tags: __tags,
 			sdk: {
 				name: "GMSentry",
-				version: __GMSENTRY_VERSION
+				version: SENTRY_LOGGING_SUITE_VERSION
 			},
 			breadcrumbs: {
 				values:__breadcrumbs
@@ -511,7 +527,7 @@ function Sentry(_dsn="") constructor {
 				show_debug_message("Sentry request succeeded");
 		
 				if (__options.backup_autoclean) {
-					var _filename = __options.backup_path + __GMSENTRY_LOG_PREFIX + _request.uuid;
+					var _filename = __options.backup_path + SENTRY_LOG_FILE_PREFIX + _request.uuid;
 					if (file_exists(_filename)) {
 						file_delete(_filename);
 						show_debug_message("Sentry backup file no longer needed and deleted: "+_filename);

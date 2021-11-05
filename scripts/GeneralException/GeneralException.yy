@@ -6,7 +6,7 @@
     "path": "folders/Exception.yy",
   },
   "resourceVersion": "1.0",
-  "name": "RuntimeException",
+  "name": "GeneralException",
   "tags": [],
   "resourceType": "GMScript",
 }

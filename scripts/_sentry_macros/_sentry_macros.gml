@@ -29,3 +29,5 @@
 #macro BREADCRUMB_TRANSACTION "transaction"
 #macro BREADCRUMB_UI "ui"
 #macro BREADCRUMB_USER "user"
+
+#macro SENTRY_LOGGING_SUITE_VERSION "0.9.1"

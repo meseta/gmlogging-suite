@@ -10,3 +10,6 @@
 // If you want to turn off log outputs, but still send sentry reports, use set_levels() with
 // no arguments
 #macro LOGGING_DISABLED false
+
+// Width of the padding used in the output
+#macro LOGGING_PAD_WIDTH 48

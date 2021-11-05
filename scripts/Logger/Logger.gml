@@ -1,4 +1,4 @@
-function Logger(_name="logger.root", _bound_values=undefined, _json_mode=false, _root_logger=undefined) constructor {
+function Logger(_name="logger", _bound_values=undefined, _json_mode=false, _root_logger=undefined) constructor {
 	__name = _name;
 	__bound_values = (is_struct(_bound_values) ? _bound_values : {});
 	__json_logging = _json_mode;
@@ -20,10 +20,18 @@ function Logger(_name="logger.root", _bound_values=undefined, _json_mode=false, 
 		// Create a log message
 		
 		if (LOGGING_DISABLED) return;
+		
+		if (!(_level == LOG_FATAL and __enable_fatal) and 
+			!(_level == LOG_ERROR and __enable_error) and
+			!(_level == LOG_WARNING and __enable_warning) and
+			!(_level == LOG_INFO and __enable_info) and
+			!(_level == LOG_DEBUG and __enable_debug)){
+			return;
+		}
 
 		// start combined with "type" added
 		var _combined = {};
-		var _combined_str = "";
+		var _combined_str = " ";
 		
 		if (not is_undefined(_type)) {
 			_combined[$ "type"] = _type
@@ -69,33 +77,28 @@ function Logger(_name="logger.root", _bound_values=undefined, _json_mode=false, 
 			var _output = json_stringify(_struct);
 		}
 		else {
-			var _output = __datetime_string() + " "
+			var _output = __datetime_string()
 			switch(_level) {
-				case LOG_FATAL:		_output += " [fatal  ] "; break;
-				case LOG_ERROR:		_output += " [error  ] "; break;
-				case LOG_WARNING:	_output += " [warning] "; break;
-				case LOG_INFO:		_output += " [info   ] "; break;
-				case LOG_DEBUG:		_output += " [debug  ] "; break;
-				default:			_output += " ["+_level+"] ";
+				case LOG_FATAL:		_output += " [fatal  ]["; break;
+				case LOG_ERROR:		_output += " [error  ]["; break;
+				case LOG_WARNING:	_output += " [warning]["; break;
+				case LOG_INFO:		_output += " [info   ]["; break;
+				case LOG_DEBUG:		_output += " [debug  ]["; break;
+				default:			_output += " ["+_level+"][";
 			}
-			_output += __string_pad(_message, 30) + " " + _combined_str;
+			_output += __string_pad(__name + "] " + _message, LOGGING_PAD_WIDTH) + _combined_str;
 			if (not is_undefined(_stacktrace)) {
 				_combined_str += "stacktrace=" + string(_stacktrace) + " ";
 			}
 		}
 		
-		if ((_level == LOG_FATAL and __enable_fatal) or 
-			(_level == LOG_ERROR and __enable_error) or
-			(_level == LOG_WARNING and __enable_warning) or
-			(_level == LOG_INFO and __enable_info) or
-			(_level == LOG_DEBUG and __enable_debug)){
-			show_debug_message(_output);
-			__write_line_to_file(_output);
-		}
+
+		show_debug_message(_output);
+		__write_line_to_file(_output);
 		
 		if (not is_undefined(__sentry)) {
-			if (__sentry_send_errors and (_level == LOG_ERROR or _level == LOG_FATAL)) {
-				__sentry.send_request(_level, _message, undefined, undefined, __name, _combined, _stacktrace); 
+			if (__sentry_send_errors and _level == LOG_ERROR) {
+				__sentry.send_report(_level, _message, undefined, undefined, __name, _combined, _stacktrace); 
 			}
 			else {
 				if (is_undefined(_type)) {
@@ -109,44 +112,49 @@ function Logger(_name="logger.root", _bound_values=undefined, _json_mode=false, 
 						_type = "default";	
 					}
 				}
-				__sentry.add_breadcrumb(__name, _level, _message, _type, _combined);
+				__sentry.add_breadcrumb(__name, _message, _combined, _level, _type);
 			}
 		}
 	}
 	
 	debug = function(_message, _extras=undefined, _type=undefined) {
 		// Create a debug-level log message
-		if (LOGGING_DISABLED) return;
+		if (LOGGING_DISABLED or not __enable_debug) return;
 		logger(LOG_DEBUG, _message, _extras, _type);	
 	}
 	info = function(_message, _extras=undefined, _type=undefined) {
 		// Create an info-level log message
-		if (LOGGING_DISABLED) return;
+		if (LOGGING_DISABLED or not __enable_info) return;
 		logger(LOG_INFO, _message, _extras, _type);	
 	}
 	log = function(_message, _extras=undefined, _type=undefined) {
 		// This function exists purely to appease javascript "console.log()" lovers
-		if (LOGGING_DISABLED) return;
+		if (LOGGING_DISABLED or not __enable_log) return;
 		logger(LOG_INFO, _message, _extras, _type);	
 	}
 	warning = function(_message, _extras=undefined, _type=undefined) {
 		// Create a warning-level log message
-		if (LOGGING_DISABLED) return;
+		if (LOGGING_DISABLED or not __enable_warning) return;
 		logger(LOG_WARNING, _message, _extras, _type);	
 	}
 	error = function(_message, _extras=undefined, _type=undefined) {
 		// Create an error-level log message
-		if (LOGGING_DISABLED) return;
+		if (LOGGING_DISABLED or not __enable_error) return;
 		logger(LOG_ERROR, _message, _extras, _type);	
 	}
-	stacktrace = function(_message) {
+	fatal = function(_message, _extras=undefined, _type=undefined) {
+		// Create an fatal-level log message
+		if (LOGGING_DISABLED or not __enable_fatal) return;
+		logger(LOG_FATAL, _message, _extras, _type);	
+	}
+	stacktrace = function(_message, _extras=undefined, _type=undefined) {
 		// Log a stacktrace
 		if (LOGGING_DISABLED) return;
 		var _stacktrace = debug_get_callstack();
 		array_delete(_stacktrace, 0, 1);
-		logger(LOG_DEBUG, _message, undefined, "debug", _stacktrace);	
+		logger(LOG_DEBUG, _message, _extras, _type, _stacktrace);	
 	}
-	log_exception = function(_exception, _level=LOG_ERROR) {
+	exception = function(_exception, _extras=undefined, _level=LOG_ERROR) {
 		// logs a GML catch exception, or one of our own Exception structs
 		if (LOGGING_DISABLED) return;
 	
@@ -154,15 +162,15 @@ function Logger(_name="logger.root", _bound_values=undefined, _json_mode=false, 
 			// Not a struct, so maybe a string? log it
 			var _stacktrace = debug_get_callstack();
 			array_delete(_stacktrace, 0, 1);
-			logger(_level, string(_exception), undefined, undefined, _stacktrace)
+			logger(_level, string(_exception), _extras, undefined, _stacktrace)
 		}
 		else if (variable_struct_exists(_exception, "__msg")) {
 			// If it's one of our exception library's custom errors
-			logger(_level, string(_exception.__msg), { inheritance: _exception.__inheritence }, undefined, _exception.__stack);
+			logger(_level, string(_exception.__msg), _extras, undefined, _exception.__stack);
 		}
 		else {
 			// Otherwise, assume it's a a gamemaker runtime error, wrap it
-			logger(_level, string(_exception.message), undefined, undefined, _exception.stacktrace);
+			logger(_level, string(_exception.message), _extras, undefined, _exception.stacktrace);
 		}
 	}
 	
@@ -206,7 +214,7 @@ function Logger(_name="logger.root", _bound_values=undefined, _json_mode=false, 
 		return bind_named(__name, _extras);
 	}
 	
-	set_level = function(_minimum_log_level=undefined) {
+	set_level = function(_minimum_log_level=LOG_DEBUG) {
 		__enable_fatal = false
 		__enable_error = false;
 		__enable_warning = false;
@@ -231,7 +239,7 @@ function Logger(_name="logger.root", _bound_values=undefined, _json_mode=false, 
 		}
 	}
 	
-	log_to_file = function(_auto_flush=false, _filename=undefined) {
+	log_to_file = function(_filename=undefined, _auto_flush=false) {
 		// Configure this logger to log to file
 		if (LOGGING_DISABLED) return;
 		close_log()

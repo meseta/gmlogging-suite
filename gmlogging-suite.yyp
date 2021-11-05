@@ -1,10 +1,11 @@
 {
   "resources": [
     {"id":{"name":"_sentry_macros","path":"scripts/_sentry_macros/_sentry_macros.yy",},"order":0,},
+    {"id":{"name":"exception_handler","path":"scripts/exception_handler/exception_handler.yy",},"order":7,},
     {"id":{"name":"obj_sentry_http_handler","path":"objects/obj_sentry_http_handler/obj_sentry_http_handler.yy",},"order":2,},
-    {"id":{"name":"exception_handler","path":"scripts/exception_handler/exception_handler.yy",},"order":4,},
     {"id":{"name":"Logger","path":"scripts/Logger/Logger.yy",},"order":0,},
     {"id":{"name":"RuntimeException","path":"scripts/RuntimeException/RuntimeException.yy",},"order":2,},
+    {"id":{"name":"GeneralException","path":"scripts/GeneralException/GeneralException.yy",},"order":8,},
     {"id":{"name":"_logger_macros","path":"scripts/_logger_macros/_logger_macros.yy",},"order":1,},
     {"id":{"name":"Sentry","path":"scripts/Sentry/Sentry.yy",},"order":1,},
     {"id":{"name":"exception_wrap","path":"scripts/exception_wrap/exception_wrap.yy",},"order":6,},
@@ -34,7 +35,7 @@
     {"roomId":{"name":"rm_demo","path":"rooms/rm_demo/rm_demo.yy",},},
   ],
   "Folders": [
-    {"folderPath":"folders/Exceptions.yy","order":4,"resourceVersion":"1.0","name":"Exceptions","tags":[],"resourceType":"GMFolder",},
+    {"folderPath":"folders/Exception.yy","order":4,"resourceVersion":"1.0","name":"Exception","tags":[],"resourceType":"GMFolder",},
     {"folderPath":"folders/Sentry.yy","order":5,"resourceVersion":"1.0","name":"Sentry","tags":[],"resourceType":"GMFolder",},
     {"folderPath":"folders/Logging.yy","order":6,"resourceVersion":"1.0","name":"Logging","tags":[],"resourceType":"GMFolder",},
   ],

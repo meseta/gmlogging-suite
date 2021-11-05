@@ -2,8 +2,8 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "Exceptions",
-    "path": "folders/Exceptions.yy",
+    "name": "Exception",
+    "path": "folders/Exception.yy",
   },
   "resourceVersion": "1.0",
   "name": "exception_rethrow",

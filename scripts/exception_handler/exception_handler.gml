@@ -23,10 +23,10 @@ function exception_handler(_err){
 		// get the call stack
 		var _stacktrace = json_parse(array_pop(_lines));
 		
-		// jon the rest of the lines back up
+		// join the rest of the lines back up
 		var _message = _lines[0];
 		for (var _i=1; _i<_arrlen; _i++) {
-			_message += "\n" + _lines[_i];
+			_message += "\r" + _lines[_i];
 		}
 	}
 	else {
@@ -37,14 +37,14 @@ function exception_handler(_err){
 	var _trace_lines = ""
 	var _len = array_length(_stacktrace);
 	for (var _i=0; _i<_len; _i++) {
-		_trace_lines += string(_stacktrace[_i]) + "\n";
+		_trace_lines += string(_stacktrace[_i]) + "\r";
 	}
 	
 	show_message(
-		"--------------------------------------------------------------\n" +
-		_message + "\n" +
-		"--------------------------------------------------------------\n" +
-		"STACKTRACE:\n" +
-		_trace_lines + "\n"
+		"______________________________________________________________\r\r" +
+		_message + "\r" +
+		"______________________________________________________________\r\r" +
+		"STACKTRACE:\r" +
+		_trace_lines + "\r"
 	);
 }
