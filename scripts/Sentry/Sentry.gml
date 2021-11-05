@@ -260,9 +260,11 @@ function Sentry(_dsn="") constructor {
 		var _len = array_length(_stacktrace);
 		for (var _i=0; _i<_len; _i++) {
 			var _line = _stacktrace[_i];
-			_trace_lines += __options.newline + _line[$ "function"];
-			if (is_numeric(_line.lineno)) {
-				_trace_lines += " (line " + string(_line.lineno) + ")";
+			if (variable_struct_exists(_line, "function")) {
+				_trace_lines += __options.newline + _line[$ "function"];
+				if (is_numeric(_line[$ "lineno"]) and _line.lineno != -1) {
+					_trace_lines += " (line " + string(_line.lineno) + ")";
+				}
 			}
 		}
 
@@ -464,6 +466,11 @@ function Sentry(_dsn="") constructor {
 				if (_pos > 0) {
 					_struct[$ "function"]  = string_copy(_entry, 1, _pos-1);
 					_struct[$ "lineno"] = real(string_delete(_entry, 1, _pos + 6));
+				}
+				else {
+					// no line number
+					_struct[$ "function"] = _entry;
+					_struct[$ "lineno"] = -1;
 				}
 			}
 			array_push(_frames, _struct)
