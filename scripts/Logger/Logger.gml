@@ -129,7 +129,7 @@ function Logger(_name="logger", _bound_values=undefined, _json_mode=false, _root
 	}
 	log = function(_message, _extras=undefined, _type=undefined) {
 		// This function exists purely to appease javascript "console.log()" lovers
-		if (LOGGING_DISABLED or not __enable_log) return;
+		if (LOGGING_DISABLED or not __enable_info) return;
 		logger(LOG_INFO, _message, _extras, _type);	
 	}
 	warning = function(_message, _extras=undefined, _type=undefined) {
