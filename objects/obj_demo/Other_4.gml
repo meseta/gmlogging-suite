@@ -12,7 +12,7 @@ logger.info("info");
 logger.error("this is an error"); // <--- this will automatically fire off an error message to sentry
 
 // Example of using exceptions
-throw new Exception("this is a new error") // <--- This of exception object will trigger the global exception handler
+throw new GeneralException("something bad happened") // <--- This of exception object will trigger the global exception handler
 
 // Example using exceptions in try/catch
 try {
@@ -20,11 +20,11 @@ try {
 		something("This will be caught because something() doesn't exist");
 	}
 	else {
-		throw new Exception("this will be ignored");	
+		throw new GeneralException("this will be ignored");	
 	}
 }
 catch (_err) {
-	if (exception_is(_err, Exception)) { // checks if we threw an Exception
+	if (exception_is(_err, GeneralException)) { // checks if we threw an Exception
 		logger.info("Ignoring error");	
 	}
 	else { // otherwise it must have been that normal GM runtime error

@@ -140,7 +140,15 @@ function Logger(_name="logger", _bound_values=undefined, _json_mode=false, _root
 	error = function(_message, _extras=undefined, _type=undefined) {
 		// Create an error-level log message
 		if (LOGGING_DISABLED or not __enable_error) return;
-		logger(LOG_ERROR, _message, _extras, _type);	
+		
+		if (__sentry_send_errors) {
+			var _stacktrace = debug_get_callstack();
+			array_delete(_stacktrace, 0, 1);
+			logger(LOG_ERROR, _message, _extras, _type, _stacktrace);
+		}
+		else {
+			logger(LOG_ERROR, _message, _extras, _type);
+		}
 	}
 	fatal = function(_message, _extras=undefined, _type=undefined) {
 		// Create an fatal-level log message

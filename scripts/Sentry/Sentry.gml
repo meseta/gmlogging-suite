@@ -69,18 +69,16 @@ function Sentry(_dsn="") constructor {
 		backup_path: "",
 		show_popup: true,
 		ask_to_send: true,
-		error_message: "There was an error\r\r",
+		error_message: "Sorry, an error occured and the game had to close\r\r",
 		show_stacktrace: true,
 		separator: "______________________________________________________________________",
-		question: "Would you like to submit this error?",
-		thanks: "Report submitted, thanks!",
+		question: "Would you like to submit this error as a bug report?",
+		thanks: "Bug report submitted, thanks!",
 		newline: "\r",
 	}
 	__requests = {};
 	__instance = noone;
 	static SENTRY_LOG_FILE_PREFIX = "sentry_";
-	
-	
 	
 	add_tag = function(_key, _value) {
 		// Add a custom tag to sentry
