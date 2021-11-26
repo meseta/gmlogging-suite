@@ -84,9 +84,9 @@ function Logger(_name="logger", _bound_values=undefined, _json_mode=false, _root
 				case LOG_WARNING:	_output += " [warning]["; break;
 				case LOG_INFO:		_output += " [info   ]["; break;
 				case LOG_DEBUG:		_output += " [debug  ]["; break;
-				default:			_output += " ["+_level+"][";
+				default:			_output += " ["+string(_level)+"][";
 			}
-			_output += __string_pad(__name + "] " + _message, LOGGING_PAD_WIDTH) + _combined_str;
+			_output += __string_pad(__name + "] " + string(_message), LOGGING_PAD_WIDTH) + _combined_str;
 			if (not is_undefined(_stacktrace)) {
 				_combined_str += "stacktrace=" + string(_stacktrace) + " ";
 			}

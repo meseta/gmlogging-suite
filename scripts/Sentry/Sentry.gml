@@ -1,5 +1,6 @@
 function Sentry(_dsn="") constructor {
 	__enable_send = false;
+	global.SENTRY_LAST_ERROR = {message: ""}
 	try {
 		// parse DSN
 		var _prot_pos = string_pos("://", _dsn);
@@ -51,7 +52,6 @@ function Sentry(_dsn="") constructor {
 		__enable_send = true;
 	}
 	catch (_err) {
-		show_debug_message(_err);
 		if (is_string(_err) and SENTRY_WARN_WHEN_NO_DSN) {
 			var _err_msg = "Sentry does not have a valid DSN. See output console for details. Either provide a DSN, or set SENTRY_WARN_WHEN_NO_DSN to false to surpress this warning";
 			show_debug_message(_err_msg);
@@ -71,7 +71,7 @@ function Sentry(_dsn="") constructor {
 		ask_to_send: true,
 		error_message: "Sorry, an error occured and the game had to close\r\r",
 		show_stacktrace: true,
-		separator: "______________________________________________________________________",
+		separator: "______________________________________________________________________\r\r",
 		question: "Would you like to submit this error as a bug report?",
 		thanks: "Bug report submitted, thanks!",
 		newline: "\r",
@@ -210,44 +210,34 @@ function Sentry(_dsn="") constructor {
 			var _file = _files[_i];
 			send_backed_up_report(_file, _callback, _errorback);
 		}
+		return _len;
 	}
-	
 	
 	exception_handler = function(_err) {
 		// try to detect our own custom exceptions
 		var _msg = _err.message;
 		if (string_pos("Unable to find a handler for exception ", _msg) == 1) {
-		
 			// split message into lines
-			var _pos = 39;
-			var _lines = [];
-			var _strlen = string_length(_msg);
-			var _arrlen = -1;
-			do {
-				var _last_pos = _pos;
-				_pos = string_pos_ext("\n", _msg, _last_pos);
-				var _line = string_copy(_msg, _last_pos+1, (_pos>0?_pos: _strlen)-_last_pos-1);
-				if (_line != "" and _line != "NO CALLSTACK") {
-					array_push(_lines, _line);
-					_arrlen += 1;
-				}
-			} until (_pos == 0);
-		
-			// get the call stack
-			var _trace_array = json_parse(array_pop(_lines));
-		
-			// jon the rest of the lines back up
-			var _message = _lines[0];
-			for (var _i=1; _i<_arrlen; _i++) {
-				_message += __options.newline + _lines[_i];
+			var _pos = string_pos_ext("\n", _msg, 39);
+			if (_pos == 0) {
+				_pos = string_pos_ext("\r", _msg, _last_pos);
+			}
+			var _line = string_copy(_msg, 40, (_pos>0?_pos: string_length(_msg))-40);
+			if (_line == string(global.SENTRY_LAST_ERROR)) {
+				var _message = string(global.SENTRY_LAST_ERROR);
+				var _tracearray = global.SENTRY_LAST_ERROR.stacktrace;
+			}
+			else {
+				var _message = _line;
+				var _tracearray = _err.stacktrace;
 			}
 		}
 		else {
 			var _message = _err.message;
-			var _trace_array = _err.stacktrace;
+			var _tracearray = _err.stacktrace;
 		}
-		
-		var _stacktrace = __format_stacktrace(_trace_array);
+	
+		var _stacktrace = __format_stacktrace(_tracearray);
 		var _payload = __create_payload(LEVEL_ERROR, _message, _stacktrace);
 		var _send = __show_popup_and_send_confirmation(_message, _stacktrace)
 		if (_send) {
@@ -271,12 +261,9 @@ function Sentry(_dsn="") constructor {
 		var _popup = __options.error_message + _message;
 			
 		if (__options.show_stacktrace) {
-			_popup = __options.separator + __options.newline + 
-					__options.newline + 
-					__options.newline + 
-					_popup + __options.newline + __options.newline +
-					__options.separator + __options.newline +
-					__options.newline + 
+			_popup = __options.separator +
+					__options.newline + _popup + __options.newline + __options.newline +
+					__options.separator +
 					"STACKTRACE:" + _trace_lines;
 		}
 			
@@ -454,26 +441,33 @@ function Sentry(_dsn="") constructor {
 				continue;
 			}
 			var _struct = {}
-			var _pos = string_pos(":", _entry);
+			var _pos = string_last_pos(":", _entry);
 			if (_pos > 0) {
-				// : separated
-				_struct[$ "function"] = string_copy(_entry, 1, _pos-1);
-				_struct[$ "lineno"] = real(string_delete(_entry, 1, _pos));
+				var _lineno = string_delete(_entry, 1, _pos);
+				if (string_digits(_lineno) == _lineno) {
+					_struct[$ "function"] = string_copy(_entry, 1, _pos-1);
+					_struct[$ "lineno"] = real(_lineno);
+					array_push(_frames, _struct);
+					continue;
+				}
 			}
-			else {
-				// bracket separated
-				var _pos = string_pos(" (line ", _entry);
-				if (_pos > 0) {
+			
+			// bracket separated?
+			var _pos = string_last_pos(" (line ", _entry);
+			if (_pos > 0) {
+				var _lineno = string_delete(_entry, 1, _pos + 6);
+				if (string_digits(_lineno) == _lineno) {
 					_struct[$ "function"]  = string_copy(_entry, 1, _pos-1);
-					_struct[$ "lineno"] = real(string_delete(_entry, 1, _pos + 6));
-				}
-				else {
-					// no line number
-					_struct[$ "function"] = _entry;
-					_struct[$ "lineno"] = -1;
+					_struct[$ "lineno"] = real(_lineno);
+					array_push(_frames, _struct);
+					continue;
 				}
 			}
-			array_push(_frames, _struct)
+			
+			// no line number
+			_struct[$ "function"] = _entry;
+			_struct[$ "lineno"] = -1;
+			array_push(_frames, _struct);
 		}
 		return _frames;
 	}

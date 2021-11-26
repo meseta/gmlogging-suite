@@ -2,7 +2,7 @@
 sentry = new Sentry("https://############################(at)#######.sentry.io/#######");
 
 // Register sentry as the global exception handler
-exception_unhandled_handler(exception_handler);
+exception_unhandled_handler(sentry.exception_handler);
 
 // Create a new logger, which uses sentry to automatically report errors
 logger = new Logger().use_sentry(sentry, true);

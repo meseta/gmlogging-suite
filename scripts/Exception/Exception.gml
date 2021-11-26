@@ -4,6 +4,7 @@ function Exception(_msg) constructor {
 	__stack = debug_get_callstack();
 	array_delete(__stack, 0, 1);
 	__msg = _msg;
+	global.SENTRY_LAST_ERROR = self;
 	
 	toString = function() {
 		return instanceof(self) + ": " + string(__msg) + "\n" + string(__stack);

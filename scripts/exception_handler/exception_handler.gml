@@ -30,8 +30,8 @@ function exception_handler(_err){
 		}
 	}
 	else {
-		var _message = err.message;
-		var _stacktrace = err.stacktrace;
+		var _message = _err.message;
+		var _stacktrace = _err.stacktrace;
 	}
 	
 	var _trace_lines = ""

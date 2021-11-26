@@ -68,6 +68,8 @@ Download the package from the following locations:
 You can import the package into your project from the GMS2 menu Tools > Import Local Package. You can use the `Sentry`, `Logging` and `Exceptions` features independentely of each other, or together.
 
 ## Change log
+- v0.9.4 Use globals for longer exceptions, and avoid errors when log level isn't a string
+- v0.9.3 Fix line number handling for built projects
 - v0.9.2 Fix .log() function, update error text, and fix stacktrace for logger.error()
 - v0.9.1 Change some parameter orders, and added missing functions
 - v0.9.0 Initial release

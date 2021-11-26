@@ -1,5 +1,5 @@
 // Sentry will warn you when it has no DSN, and therefore can't send reports
-#macro SENTRY_WARN_WHEN_NO_DSN false
+#macro SENTRY_WARN_WHEN_NO_DSN true
 
 // Privacy stuff: set to true to record a device-specific hash. No identifying information
 // is included, but the device hash is specific to a device
