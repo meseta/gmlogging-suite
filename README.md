@@ -10,7 +10,7 @@ Find out more [in the wiki](https://github.com/meseta/gmlogging-suite/wiki)
 It's as simple as (replace the URL below with your project's DSN from Sentry.io):
 ```gml
 sentry = new Sentry("https://############################(at)#######.sentry.io/#######");
-exception_unhandled_handler(sentry.exception_handler);
+exception_unhandled_handler(sentry.get_exception_handler());
 ```
 
 This will cause any runtime errors to be sent to your Sentry.io account (by default, the user will see a confirmation dialogue asking whether they want to send you the error logs).
@@ -45,18 +45,18 @@ With gmlogging-suite's new exception handling code, it becomes possible to check
 ```gml
 do_something = function() {
   ... lots of code here ...
-  throw GeneralException("Could not do a thing");
+  throw Exception("Could not do a thing");
 }
 
 try {
 	do_something();
 }
 catch (_err) {
-	if (exception_is(_err, GeneralException)) { // checks if we threw an GeneralException
+	if (is_instanceof(_err, Exception)) { // checks if we threw an GeneralException
 		logger.info("Ignoring error");
 	}
 	else { // otherwise it must have been that normal GM runtime error
-		exception_rethrow(_err); // rethrow the exception
+		throw _err; // rethrow the exception
 	}
 }
 ```
@@ -65,9 +65,10 @@ catch (_err) {
 Download the package from the following locations:
 - https://github.com/meseta/gmlogging-suite/releases
 
-You can import the package into your project from the GMS2 menu Tools > Import Local Package. You can use the `Sentry`, `Logging` and `Exceptions` features independentely of each other, or together.
+You can import the package into your project from the GMS2 menu Tools > Import Local Package.
 
 ## Change log
+- v1.0.0 Update to use GM2023 best practices
 - v0.9.4 Use globals for longer exceptions, and avoid errors when log level isn't a string
 - v0.9.3 Fix line number handling for built projects
 - v0.9.2 Fix .log() function, update error text, and fix stacktrace for logger.error()

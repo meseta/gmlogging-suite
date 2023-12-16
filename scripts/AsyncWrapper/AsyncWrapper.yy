@@ -1,7 +1,7 @@
 {
   "resourceType": "GMScript",
   "resourceVersion": "1.0",
-  "name": "Sentry",
+  "name": "AsyncWrapper",
   "isCompatibility": false,
   "isDnD": false,
   "parent": {
