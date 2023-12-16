@@ -513,11 +513,9 @@ function Sentry(_dsn="") constructor {
 			
 			var _pos = string_last_pos(":", _entry);
 			if (_pos > 0) {
-				var _line_end = string_delete(_entry, 1, _pos);
-				var _pos2 = string_pos(")", _line_end);
-				var _lineno = string_copy(_line_end, 1, _pos2-1);
+				var _lineno = string_delete(_entry, 1, _pos);
 				
-				if (string_digits(_lineno) == _lineno) {
+				if (string_digits(_lineno) == _lineno && _lineno != "") {
 					_struct[$ "function"] = string_copy(_entry, 1, _pos-1);
 					_struct[$ "lineno"] = real(_lineno);
 					array_push(_frames, _struct);
