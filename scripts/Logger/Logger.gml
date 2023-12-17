@@ -2,6 +2,7 @@
  * @param {String} _name The logger's name. This will appear in any log messages produced by this logger
  * @param {Struct} _bound_values Optional struct of bound values which will be included in all log messages produced by this logger
  * @param {Struct.Logger} _root_logger The loot logger instance that is this logger's parent
+ * @author Meseta https://meseta.dev
  */
 function Logger(_name="logger", _bound_values=undefined, _root_logger=undefined) constructor {
 	/* @ignore */ self.__name = _name;

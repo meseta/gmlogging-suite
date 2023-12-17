@@ -1,4 +1,6 @@
-/** Provise callback-based implementation for async events */
+/** Provise callback-based implementation for async events
+ * @author Meseta https://meseta.dev
+ */
 function AsyncWrapper() constructor {
 	/* @ignore */ static __async_http_wrapper = noone;
 	/* @ignore */ static __async_networking_wrapper = noone;

@@ -68,6 +68,7 @@ Download the package from the following locations:
 You can import the package into your project from the GMS2 menu Tools > Import Local Package.
 
 ## Change log
+- v1.0.2 Add author details
 - v1.0.1 Fix bug in stacktrace handling
 - v1.0.0 Update to use GM2023 best practices
 - v0.9.4 Use globals for longer exceptions, and avoid errors when log level isn't a string

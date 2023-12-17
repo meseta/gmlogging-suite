@@ -1,6 +1,7 @@
 /** Custom exception to mirror gamemaker's built-in exceptions
  * @param {String} _message The exception message
  * @param {String} _long_message A longer message
+ * @author Meseta https://meseta.dev
  */
 function Exception(_message, _long_message=undefined) constructor {
 	/// Feather ignore GM2017
