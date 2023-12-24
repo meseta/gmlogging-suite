@@ -20,13 +20,13 @@
     "IDEVersion": "2023.11.0.121",
   },
   "resources": [
-    {"id":{"name":"Logger","path":"scripts/Logger/Logger.yy",},},
-    {"id":{"name":"Sentry","path":"scripts/Sentry/Sentry.yy",},},
-    {"id":{"name":"Exception","path":"scripts/Exception/Exception.yy",},},
     {"id":{"name":"oAsyncWrapperNetworking","path":"objects/oAsyncWrapperNetworking/oAsyncWrapperNetworking.yy",},},
+    {"id":{"name":"Logger","path":"scripts/Logger/Logger.yy",},},
     {"id":{"name":"rm_demo","path":"rooms/rm_demo/rm_demo.yy",},},
-    {"id":{"name":"oAsyncWrapperHttp","path":"objects/oAsyncWrapperHttp/oAsyncWrapperHttp.yy",},},
     {"id":{"name":"AsyncWrapper","path":"scripts/AsyncWrapper/AsyncWrapper.yy",},},
+    {"id":{"name":"Exception","path":"scripts/Exception/Exception.yy",},},
+    {"id":{"name":"oAsyncWrapperHttp","path":"objects/oAsyncWrapperHttp/oAsyncWrapperHttp.yy",},},
+    {"id":{"name":"Sentry","path":"scripts/Sentry/Sentry.yy",},},
     {"id":{"name":"obj_demo","path":"objects/obj_demo/obj_demo.yy",},},
   ],
   "RoomOrderNodes": [

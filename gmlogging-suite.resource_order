@@ -1,12 +1,12 @@
 {
   "FolderOrderSettings": [],
   "ResourceOrderSettings": [
-    {"name":"Logger","order":1,"path":"scripts/Logger/Logger.yy",},
-    {"name":"Exception","order":2,"path":"scripts/Exception/Exception.yy",},
     {"name":"oAsyncWrapperNetworking","order":5,"path":"objects/oAsyncWrapperNetworking/oAsyncWrapperNetworking.yy",},
+    {"name":"Logger","order":1,"path":"scripts/Logger/Logger.yy",},
     {"name":"rm_demo","order":8,"path":"rooms/rm_demo/rm_demo.yy",},
-    {"name":"oAsyncWrapperHttp","order":4,"path":"objects/oAsyncWrapperHttp/oAsyncWrapperHttp.yy",},
     {"name":"AsyncWrapper","order":3,"path":"scripts/AsyncWrapper/AsyncWrapper.yy",},
+    {"name":"oAsyncWrapperHttp","order":4,"path":"objects/oAsyncWrapperHttp/oAsyncWrapperHttp.yy",},
+    {"name":"Sentry","order":2,"path":"scripts/Sentry/Sentry.yy",},
     {"name":"obj_demo","order":7,"path":"objects/obj_demo/obj_demo.yy",},
   ],
 }

@@ -36,7 +36,7 @@ function Sentry(_dsn="") constructor {
 	// This global facilitates loose coupling between exceptions and sentry
 	global.sentry_last_exception = {message: "", stacktrace: []};
 	
-	if (is_string(_dsn)) {
+	if (is_string(_dsn) && _dsn != "") {
 		self.set_dsn(_dsn);	
 	}
 	
