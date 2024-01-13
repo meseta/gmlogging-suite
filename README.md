@@ -68,6 +68,8 @@ Download the package from the following locations:
 You can import the package into your project from the GMS2 menu Tools > Import Local Package.
 
 ## Change log
+* v1.0.4
+	* Fix global modes
 * v1.0.3
 	* Fix json mode on by default
 	* Propagate log level to child loggers

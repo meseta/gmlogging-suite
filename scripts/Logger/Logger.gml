@@ -31,14 +31,14 @@ function Logger(_name="logger", _bound_values=undefined, _root_logger=undefined)
 	 * @param {Bool} _enable
 	 */
 	static set_global_enabled = function(_enabled) {
-		self.__global_logging_enabled = _enabled;
+		Logger.__global_logging_enabled = _enabled;
 	};
 	
 	/** Globally set loggers to json
 	 * @param {Bool} _json_mode
 	 */
 	static set_global_json = function(_json_mode) {
-		self.__global_json_logging = _json_mode;
+		Logger.__global_json_logging = _json_mode;
 	};
 
 	/** Output a debug-level log message
@@ -48,7 +48,7 @@ function Logger(_name="logger", _bound_values=undefined, _root_logger=undefined)
 	 */
 	static debug = function(_message, _extras=undefined, _type=undefined) {
 		// Create a debug-level log message
-		if (!self.__global_logging_enabled || !self.__enable_debug) return;
+		if (!Logger.__global_logging_enabled || !self.__enable_debug) return;
 		self.__log(Logger.DEBUG, _message, _extras, _type);	
 	};
 	
@@ -59,7 +59,7 @@ function Logger(_name="logger", _bound_values=undefined, _root_logger=undefined)
 	 */
 	static info = function(_message, _extras=undefined, _type=undefined) {
 		// Create an info-level log message
-		if (!self.__global_logging_enabled || !self.__enable_info) return;
+		if (!Logger.__global_logging_enabled || !self.__enable_info) return;
 		self.__log(Logger.INFO, _message, _extras, _type);	
 	};
 	static log = self.info; // this is an alias of info
@@ -71,7 +71,7 @@ function Logger(_name="logger", _bound_values=undefined, _root_logger=undefined)
 	 */
 	static warning = function(_message, _extras=undefined, _type=undefined) {
 		// Create a warning-level log message
-		if (!self.__global_logging_enabled || !self.__enable_warning) return;
+		if (!Logger.__global_logging_enabled || !self.__enable_warning) return;
 		self.__log(Logger.WARNING, _message, _extras, _type);	
 	};
 	static warn = self.warning; // sometimes this gets mixed up, so why not both
@@ -83,7 +83,7 @@ function Logger(_name="logger", _bound_values=undefined, _root_logger=undefined)
 	 */
 	static error = function(_message, _extras=undefined, _type=undefined) {
 		// Create an error-level log message
-		if (!self.__global_logging_enabled || !self.__enable_error) return;
+		if (!Logger.__global_logging_enabled || !self.__enable_error) return;
 		
 		if (self.__sentry_send_errors) {
 			var _stacktrace = debug_get_callstack();
@@ -102,7 +102,7 @@ function Logger(_name="logger", _bound_values=undefined, _root_logger=undefined)
 	 */
 	static fatal = function(_message, _extras=undefined, _type=undefined) {
 		// Create an fatal-level log message
-		if (!self.__global_logging_enabled || !self.__enable_fatal) return;
+		if (!Logger.__global_logging_enabled || !self.__enable_fatal) return;
 		self.__log(Logger.FATAL, _message, _extras, _type);	
 	};
 	
@@ -113,7 +113,7 @@ function Logger(_name="logger", _bound_values=undefined, _root_logger=undefined)
 	 */
 	static stacktrace = function(_message, _extras=undefined, _type=undefined) {
 		// Log a stacktrace
-		if (!self.__global_logging_enabled) return;
+		if (!Logger.__global_logging_enabled) return;
 		var _stacktrace = debug_get_callstack();
 		array_delete(_stacktrace, 0, 1);
 		self.__log(Logger.DEBUG, _message, _extras, _type, _stacktrace);	
@@ -126,7 +126,7 @@ function Logger(_name="logger", _bound_values=undefined, _root_logger=undefined)
 	 */
 	static exception = function(_exception, _extras=undefined, _level=Logger.ERROR, _type=undefined) {
 		// logs a GML catch exception, or one of our own Exception structs
-		if (!self.__global_logging_enabled) return;
+		if (!Logger.__global_logging_enabled) return;
 	
 		if (is_struct(_exception)) {
 			// If it has a message component, log it
@@ -198,7 +198,7 @@ function Logger(_name="logger", _bound_values=undefined, _root_logger=undefined)
 	/** When file logging is enabled, explicitly flush the log to file */
 	static flush_to_file = function() {
 		// Flush pending log messages to file
-		if (!self.__global_logging_enabled) return;
+		if (!Logger.__global_logging_enabled) return;
 		if (self.__file_handle != -1) {
 			file_text_close(self.__file_handle);
 			self.__file_handle = file_text_open_append(self.__filename);
@@ -211,7 +211,7 @@ function Logger(_name="logger", _bound_values=undefined, _root_logger=undefined)
 	 */
 	static log_to_file = function(_filename, _auto_flush=false) {
 		// Configure this logger to log to file
-		if (!self.__global_logging_enabled) return;
+		if (!Logger.__global_logging_enabled) return;
 		self.close_log()
 		
 		self.__filename =_filename
@@ -231,7 +231,7 @@ function Logger(_name="logger", _bound_values=undefined, _root_logger=undefined)
 	/** Close the file log */
 	static close_log = function() {
 		// Explicitly close the log
-		if (!self.__global_logging_enabled) return;
+		if (!Logger.__global_logging_enabled) return;
 		if (self.__file_handle != -1) {
 			file_text_close(self.__file_handle);
 		}
@@ -260,7 +260,7 @@ function Logger(_name="logger", _bound_values=undefined, _root_logger=undefined)
 	static __log = function(_level, _message, _extras=undefined, _type=undefined, _stacktrace=undefined) {
 		// Create a log message
 		
-		if (!self.__global_logging_enabled) return;
+		if (!Logger.__global_logging_enabled) return;
 		
 		if (!(_level == Logger.FATAL and self.__enable_fatal) and 
 			!(_level == Logger.ERROR and self.__enable_error) and
@@ -282,9 +282,9 @@ function Logger(_name="logger", _bound_values=undefined, _root_logger=undefined)
 		if (is_struct(_extras)) {
 			struct_foreach(_extras, method(_combined, function(_name, _value) { /* Feather ignore once GM1041 */ struct_set(self, _name, _value) }));
 		}
-
-		var _output
-		if (self.__global_json_logging) {
+		
+		var _output;
+		if (Logger.__global_json_logging) {
 			var _struct = {
 				logName: self.__name,
 				times: self.__datetime_string_iso(),
